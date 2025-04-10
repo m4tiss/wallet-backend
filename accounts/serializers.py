@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+
 from .models import CustomUser
 from django.contrib.auth import authenticate
 
@@ -28,7 +30,7 @@ class UserLoginSerializer(serializers.Serializer):
         password = data.get('password')
         user = authenticate(email=email, password=password)
         if user is None:
-            raise serializers.ValidationError("Invalid credentials")
+            raise AuthenticationFailed("Invalid credentials")
 
         data['user'] = user
         return data

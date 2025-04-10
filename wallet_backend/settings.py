@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'accounts'
+    'accounts',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -33,11 +34,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'wallet_backend.urls'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 TEMPLATES = [
     {
