@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
 class Bond(models.Model):
     TYPE_CHOICES = [
         ('standard', 'Standardowa'),
@@ -49,6 +48,7 @@ class UserBond(models.Model):
     interest_type = models.CharField(max_length=10, choices=INTEREST_TYPE_CHOICES)
     first_period_interest = models.DecimalField(max_digits=5, decimal_places=2, help_text="W skali roku, w %")
     margin = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Marża w %, jeśli dotyczy")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.name} ({self.amount})"
