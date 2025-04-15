@@ -5,7 +5,7 @@ from rest_framework import status
 from accounts.utils import get_user_id
 from .models import Bond, UserBond
 from .serializers import BondSerializer, UserBondSerializer
-from .utils import calculate_generated_money,check_duration
+from .utils import calculate_generated_money, check_duration
 
 
 class BondListView(APIView):
@@ -76,5 +76,38 @@ class UserBondListView(APIView):
 
             serializer = UserBondSerializer(user_bond)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserBondTotalValueView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user_id = get_user_id(request)
+            user_bonds = UserBond.objects.filter(user_id=user_id)
+
+            start_money = 0
+            total_value = 0
+
+            for bond in user_bonds:
+                check_duration(bond)
+
+                if not bond.is_active:
+                    continue
+
+                generated = calculate_generated_money(bond)
+                start_money += (bond.amount * 100)
+                total_value += (bond.amount* 100) + generated
+
+            percent = ((total_value - start_money) / start_money * 100) if start_money else 0
+
+            return Response({
+                "start_money": round(start_money, 2),
+                "total_value": round(total_value, 2),
+                "percent": round(percent, 2),
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
