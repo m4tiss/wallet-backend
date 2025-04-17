@@ -54,4 +54,4 @@ class UserBond(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.name} ({self.amount})"
+        return f"{self.name} ({self.amount})"
