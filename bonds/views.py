@@ -5,7 +5,7 @@ from rest_framework import status
 from accounts.utils import get_user_id
 from .models import Bond, UserBond
 from .serializers import BondSerializer, UserBondSerializer
-from .utils import calculate_generated_money, check_duration
+from .utils import calculate_generated_money, check_duration, get_date_data
 
 
 class BondListView(APIView):
@@ -32,11 +32,14 @@ class UserBondListView(APIView):
                     continue
 
                 generated_money = calculate_generated_money(bond)
+                end_date, percent_progress = get_date_data(bond)
 
                 bond_info = {
                     'id': bond.id,
                     'amount': bond.amount,
-                    'purchase_date': bond.purchase_date,
+                    'start_date': bond.purchase_date,
+                    'end_date': end_date,
+                    'percent_progress': percent_progress,
                     'generated_money': generated_money,
                     'name': bond.name,
                     'duration_months': bond.duration_months,
