@@ -47,6 +47,20 @@ def calculate_generated_money(bond):
         total_generated = daily_interest * days_passed
 
     elif bond.interest_type == "variable":
+        first_year_days = 365 if days_passed > 365 else days_passed
+        interest = Decimal(bond.first_period_interest) / Decimal("100")
+        daily_interest_rate = interest / Decimal("365")
+        daily_interest = (amount * daily_interest_rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        total_generated = daily_interest * first_year_days
+        if days_passed > 365:
+            remaining_days = days_passed - 365
+            adjusted_interest_rate = interest + bond.margin/100
+            adjusted_daily_interest_rate = adjusted_interest_rate / Decimal("365")
+            adjusted_daily_interest = (amount * adjusted_daily_interest_rate).quantize(Decimal("0.01"),
+                                                                                       rounding=ROUND_HALF_UP)
+            total_generated += adjusted_daily_interest * remaining_days
+
+    elif bond.interest_type == 'indexed':
         print("Rodzaj oprocentowania: Zmiennoprocentowe")
         # Zmiennoprocentowe – pierwszy miesiąc stały, reszta inflacja + marża
         inflation_data = get_dict()
@@ -63,11 +77,13 @@ def calculate_generated_money(bond):
             else:
                 inflation = Decimal(inflation_data.get(key, "0")) / Decimal("100")
                 interest = margin + inflation
-                print(f"Okres {period_date.strftime('%Y-%m')}: Oprocentowanie inflacyjne: {interest * 100}% (marża + inflacja)")
+                print(
+                    f"Okres {period_date.strftime('%Y-%m')}: Oprocentowanie inflacyjne: {interest * 100}% (marża + inflacja)")
 
             daily_interest = (amount * interest / Decimal("365")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             print(f"Odsetki dzienne dla dnia {i + 1}: {daily_interest}")
             total_generated += daily_interest
             print(f"Całkowity wygenerowany zysk po dniu {i + 1}: {total_generated}")
+    #         do zrobienia
 
     return total_generated
