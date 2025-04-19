@@ -28,15 +28,13 @@ def get_dict():
 
 
 def get_date_data(bond):
-    end_date = bond.purchase_date + relativedelta(months=bond.duration_months)
+    purchase_date = datetime.combine(bond.purchase_date, datetime.min.time())
+    end_date = purchase_date + relativedelta(months=bond.duration_months)
     today = datetime.today()
-    total_duration = relativedelta(end_date, bond.purchase_date)
-    elapsed_duration = relativedelta(today, bond.purchase_date)
-    elapsed_months = elapsed_duration.years * 12 + elapsed_duration.months
-    total_months = total_duration.years * 12 + total_duration.months
-    percent_progress = (elapsed_months / total_months) * 100 if total_months > 0 else 0
-
-    return end_date, percent_progress
+    total_days = (end_date - purchase_date).days
+    elapsed_days = (today - purchase_date).days
+    percent_progress = (elapsed_days / total_days) * 100 if total_days > 0 else 0
+    return end_date.date(), percent_progress
 
 
 def calculate_generated_money(bond):
