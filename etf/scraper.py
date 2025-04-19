@@ -47,6 +47,6 @@ def get_iusq_de():
     ask = get_element_text(driver, By.ID, "aq_iusq.de_a3")
     driver.quit()
 
-    return exchange, date, time, daily_change_value, daily_change_percent, bid, ask
+    return float(exchange), date, time, daily_change_value, daily_change_percent, bid, ask
 
 get_iusq_de()
