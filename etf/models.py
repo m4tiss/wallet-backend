@@ -8,9 +8,9 @@ class UserEtf(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_etfs')
     name = models.CharField(max_length=100)
     purchase_date = models.DateField(auto_now_add=True)
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=4)
     units = models.DecimalField(max_digits=10, decimal_places=4)
-
+    euro_exchange_rate = models.DecimalField(max_digits=10, decimal_places=4, default=4.2000)
     def __str__(self):
         return f"{self.name} ({self.units} units @ {self.purchase_price})"
 

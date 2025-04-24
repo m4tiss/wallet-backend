@@ -5,6 +5,16 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from decimal import Decimal, InvalidOperation
+
+
+def to_decimal(value):
+    try:
+        if value is None or value.strip() == '' or value.strip() == '-':
+            return Decimal('0.0')
+        return Decimal(value.replace(',', '').replace(' ', ''))
+    except (InvalidOperation, AttributeError):
+        return Decimal('0.0')
 
 
 def get_element_text(driver, by, value, wait_time=4):
@@ -26,27 +36,33 @@ def get_iusq_de():
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-    url = 'https://stooq.pl/q/?s=iusq.de'
+    url = 'https://finance.yahoo.com/quote/IUSQ.DE/'
     driver.get(url)
 
     try:
-        agree_btn = WebDriverWait(driver, 4).until(
+        agree_btn = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable(
-                (By.XPATH, "//button[contains(@class, 'fc-cta-consent') and contains(@aria-label, 'Zgadzam się')]"))
+                (By.XPATH, "//button[contains(@class, 'accept-all') and text()='Accept all']")
+            )
         )
         agree_btn.click()
     except Exception as e:
-        print("Błąd podczas klikania przycisku zgody:", e)
+        print("Błąd podczas klikania przycisku 'Accept all':", e)
 
-    exchange = get_element_text(driver, By.ID, "aq_iusq.de_c3")
-    date = get_element_text(driver, By.ID, "aq_iusq.de_d2")
-    time = get_element_text(driver, By.ID, "aq_iusq.de_t1")
-    daily_change_value = get_element_text(driver, By.ID, "aq_iusq.de_m2")
-    daily_change_percent = get_element_text(driver, By.ID, "aq_iusq.de_m3")[1:-2]
-    bid = get_element_text(driver, By.ID, "aq_iusq.de_b3")
-    ask = get_element_text(driver, By.ID, "aq_iusq.de_a3")
+    bid_text = WebDriverWait(driver, 4).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//span[@title='Bid']/following-sibling::span")
+        )
+    ).text
+
+    ask_text = WebDriverWait(driver, 4).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//span[@title='Ask']/following-sibling::span")
+        )
+    ).text
     driver.quit()
 
-    return float(exchange), date, time, daily_change_value, daily_change_percent, bid, ask
-
-get_iusq_de()
+    return (
+        to_decimal(bid_text[:6]),
+        to_decimal(ask_text[:6]),
+    )

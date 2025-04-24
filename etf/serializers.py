@@ -5,4 +5,4 @@ from .models import UserEtf
 class UserEtfSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserEtf
-        fields = ['user', 'name', 'purchase_date', 'purchase_price', 'units']
+        fields = ['user', 'name', 'purchase_date', 'purchase_price', 'units', 'euro_exchange_rate']
