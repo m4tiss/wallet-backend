@@ -1,4 +1,3 @@
-from .scraper import get_iusq_de
 import requests
 from decimal import Decimal
 
@@ -7,15 +6,12 @@ def get_bid_exchange_rate():
     url = "https://api.nbp.pl/api/exchangerates/rates/c/eur"
     response = requests.get(url)
     response.raise_for_status()
-    # mozna uzyc lepszego kursu ale jest ok
     data = response.json()
     bid = data['rates'][0]['bid']
     return Decimal(str(bid))
 
-def calculate_generated_money(etf):
+def calculate_generated_money(etf, bid):
     try:
-        bid, ask = get_iusq_de()
-
         current_price = Decimal(str(bid))
         current_euro_exchange_rate = get_bid_exchange_rate()
         current_value = current_price * etf.units * current_euro_exchange_rate

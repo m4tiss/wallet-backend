@@ -60,6 +60,18 @@ def get_iusq_de():
             (By.XPATH, "//span[@title='Ask']/following-sibling::span")
         )
     ).text
+
+    if ask_text == "" or bid_text == "":
+        open_value = WebDriverWait(driver, 4).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//span[@title='Open']/following-sibling::span//fin-streamer")
+            )
+        ).text
+        return (
+            to_decimal(open_value),
+            to_decimal(open_value)
+        )
+
     driver.quit()
 
     return (

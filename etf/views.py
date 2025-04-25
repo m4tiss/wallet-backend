@@ -32,8 +32,9 @@ class UserEtfView(APIView):
 
             etf_data = []
 
+            bid, ask = get_iusq_de()
             for etf in user_etf:
-                current_value,initial_value,percent_change = calculate_generated_money(etf)
+                current_value, initial_value, percent_change = calculate_generated_money(etf, bid)
                 etf_info = {
                     'id': etf.id,
                     'name': etf.name,
@@ -70,5 +71,34 @@ class UserEtfView(APIView):
 
             serializer = UserEtfSerializer(user_etf)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserEtfTotalValueView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user_id = get_user_id(request)
+            user_etf = UserEtf.objects.filter(user_id=user_id)
+
+            start_money = 0
+            total_value = 0
+
+            bid, ask = get_iusq_de()
+            for etf in user_etf:
+                current_value, initial_value, percent_change = calculate_generated_money(etf, bid)
+                start_money += initial_value;
+                total_value += current_value
+
+            percent = ((total_value - start_money) / start_money * 100) if start_money else 0
+
+            return Response({
+                "start_money": round(start_money, 2),
+                "total_value": round(total_value, 2),
+                "percent": round(percent, 2),
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
